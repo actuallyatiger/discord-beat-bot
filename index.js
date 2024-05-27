@@ -55,6 +55,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 });
 
+client.queues = {};
+client.ytdl_options = { filter: "audioonly", quality: "highestaudio" };
+
 client.once(Events.ClientReady, (readyClient) => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
