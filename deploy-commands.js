@@ -5,7 +5,6 @@ const path = require("node:path");
 require("dotenv").config();
 const token = process.env.TOKEN;
 const client_id = process.env.CLIENT_ID;
-const guild_id = process.env.GUILD_ID;
 
 const commands = [];
 
@@ -29,6 +28,8 @@ for (const folder of commandFolders) {
 
 const rest = new REST().setToken(token);
 
+// Register commands
+
 (async () => {
   try {
     console.log(`Started refreshing ${commands.length} application (/) commands.`);
@@ -43,3 +44,14 @@ const rest = new REST().setToken(token);
     console.error(error);
   }
 })();
+
+// Delete all commands
+
+// (async () => {
+//   console.log("Deleting all commands");
+
+//   rest
+//     .put(Routes.applicationCommands(client_id), { body: [] })
+//     .then(() => console.log("Successfully deleted all application commands."))
+//     .catch(console.error);
+// })();
