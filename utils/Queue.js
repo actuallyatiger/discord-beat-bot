@@ -8,12 +8,12 @@ module.exports = class Queue {
     this.connection = null;
   }
 
-  push(song) {
+  add(song) {
     this.queue.push(song);
   }
 
-  pop(song) {
-    this.queue.pop(song);
+  next() {
+    return this.queue.shift();
   }
 
   insert(song, pos) {
@@ -21,10 +21,25 @@ module.exports = class Queue {
   }
 
   remove(pos) {
-    this.queue.splice(pos, 1);
+    return this.queue.splice(pos, 1);
   }
 
-  get(count = 5) {
+  get(count = 10) {
     return this.queue.slice(0, count);
+  }
+
+  length() {
+    return this.queue.length;
+  }
+
+  shuffle() {
+    for (let i = this.queue.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.queue[i], this.queue[j]] = [this.queue[j], this.queue[i]];
+    }
+  }
+
+  clear() {
+    this.queue = [];
   }
 };
