@@ -4,10 +4,14 @@ const path = require("path");
 require("dotenv").config();
 const token = process.env.TOKEN;
 
-const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
+const { ActivityType, Client, Collection, Events, GatewayIntentBits } = require("discord.js");
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildVoiceStates],
+  presence: {
+    activities: [{ name: "chip", type: ActivityType.Listening }],
+    status: "online",
+  },
 });
 
 client.commands = new Collection();
