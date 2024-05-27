@@ -14,7 +14,9 @@ const {
   getVoiceConnection,
 } = require("@discordjs/voice");
 
-const link_re = /^(?:https?:\/\/)?(?:(?:www\.)?youtube.com\/watch\?v=|youtu.be\/)(?<video_id>[\w-]{11})/;
+const link_re = /^(?:https?:\/\/)?(?:(?:www\.)?youtube\.com\/watch\?v=|youtu.be\/)(?<video_id>[\w-]{11})/;
+const playlist_re =
+  /^(?:https?:\/\/)?(?:(?:www\.)?youtube.com\/playlist\?list=|music.youtube.com\/playlist\?list=)(?<playlist_id>[\w-]{34})/;
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -41,13 +43,32 @@ module.exports = {
     const query = interaction.options.getString("query");
 
     let video_id;
+    let playlist_id;
+    let playlist_ids = [];
     let description = "";
     let queue = client.queues[interaction.guild.id];
+    let fromPlaylist = false;
 
     // Check if the query is a valid YouTube link
     if (link_re.test(query)) {
       const { video_id: linkVideoId } = link_re.exec(query).groups;
       video_id = linkVideoId;
+    } else if (playlist_re.test(query)) {
+      fromPlaylist = true;
+      const { playlist_id: playlistId } = playlist_re.exec(query).groups;
+      playlist_id = playlistId;
+
+      playlist = await youtubesearchapi.GetPlaylistData(playlist_id);
+
+      for (let item of playlist.items) {
+        playlist_ids.push(item.id);
+      }
+
+      if (playlist_ids.length === 0) {
+        return interaction.editReply({ content: "The playlist is empty." });
+      }
+
+      description = `Added ${playlist.items.length} videos to the queue`;
     } else {
       try {
         // Search for videos based on the query
@@ -59,25 +80,42 @@ module.exports = {
 
         video_id = result.items[0].id;
       } catch (err) {
-        console.error(err);
         return interaction.editReply({ content: "An error occurred while searching for videos." });
       }
     }
 
-    // Validate the video ID
-    if (!ytdl.validateID(video_id)) {
-      return interaction.editReply({ content: `Could not find a video with the URL: ${query}` });
+    // Validate the playlist/video ID
+    if (fromPlaylist) {
+      // filter out invalid video IDs
+      playlist_ids = playlist_ids.filter((id) => ytdl.validateID(id));
+
+      if (playlist_ids.length === 0) {
+        return interaction.editReply({ content: "No valid videos found in the playlist." });
+      }
+    } else {
+      if (!ytdl.validateID(video_id)) {
+        return interaction.editReply({ content: "Could not find a video with that query" });
+      }
     }
 
     if (queue) {
-      // Add the video to the queue
-      queue.add(video_id);
+      // Add the playlist/video to the queue
+      if (fromPlaylist) {
+        queue.add(...playlist_ids);
+      } else queue.add(video_id);
       description = `Added to queue in position ${queue.length()}`;
     } else {
       // Create a new queue and start playing the video
       queue = new Queue();
       client.queues[interaction.guild.id] = queue;
-      description = "Playing now";
+
+      if (fromPlaylist) {
+        description = ` Playing ${playlist_ids.length} videos from the playlist`;
+        video_id = playlist_ids.shift();
+        queue.add(...playlist_ids);
+      } else {
+        description = "Playing now";
+      }
 
       const connection = joinVoiceChannel({
         channelId: interaction.member.voice.channel.id,
@@ -103,19 +141,30 @@ module.exports = {
     }
 
     try {
+      let embed;
       // Get video information and send an embed message
-      const info = await ytdl.getInfo(video_id);
-      const embed = new EmbedBuilder()
-        .setTitle(info.videoDetails.title)
-        .setURL(info.videoDetails.video_url)
-        .setThumbnail(info.videoDetails.thumbnails[0].url)
-        .setDescription(description)
-        .setFooter({
-          text: `Duration: ${Math.floor(info.videoDetails.lengthSeconds / 60)}:${(
-            "0" +
-            (info.videoDetails.lengthSeconds % 60)
-          ).slice(-2)}`,
-        });
+      if (fromPlaylist) {
+        const playlist = await youtubesearchapi.GetPlaylistData(playlist_id);
+        const info = await ytdl.getInfo(playlist.items[0].id);
+        embed = new EmbedBuilder()
+          .setTitle("Playlist Added")
+          .setURL(`https://www.youtube.com/playlist?list=${playlist_id}`)
+          .setThumbnail(info.videoDetails.thumbnails[0].url)
+          .setDescription(description);
+      } else {
+        const info = await ytdl.getInfo(video_id);
+        embed = new EmbedBuilder()
+          .setTitle(info.videoDetails.title)
+          .setURL(info.videoDetails.video_url)
+          .setThumbnail(info.videoDetails.thumbnails[0].url)
+          .setDescription(description)
+          .setFooter({
+            text: `Duration: ${Math.floor(info.videoDetails.lengthSeconds / 60)}:${(
+              "0" +
+              (info.videoDetails.lengthSeconds % 60)
+            ).slice(-2)}`,
+          });
+      }
       return interaction.editReply({ embeds: [embed] });
     } catch (err) {
       console.error(err);

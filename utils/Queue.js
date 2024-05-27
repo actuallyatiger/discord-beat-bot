@@ -8,8 +8,8 @@ module.exports = class Queue {
     this.connection = null;
   }
 
-  add(song) {
-    this.queue.push(song);
+  add(...songs) {
+    this.queue.push(...songs);
   }
 
   next() {
