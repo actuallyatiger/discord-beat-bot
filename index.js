@@ -60,7 +60,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 });
 
 client.queues = {};
-client.ytdl_options = { filter: "audioonly", quality: "highestaudio" };
+client.ytdl_options = { filter: "audioonly", quality: "highestaudio", liveBuffer: 2000, highWaterMark: 1 << 25 };
 
 client.once(Events.ClientReady, (readyClient) => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);

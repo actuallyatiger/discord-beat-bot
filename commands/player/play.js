@@ -58,7 +58,7 @@ module.exports = {
       const { playlist_id: playlistId } = playlist_re.exec(query).groups;
       playlist_id = playlistId;
 
-      playlist = await youtubesearchapi.GetPlaylistData(playlist_id);
+      const playlist = await youtubesearchapi.GetPlaylistData(playlist_id);
 
       for (let item of playlist.items) {
         playlist_ids.push(item.id);
@@ -134,10 +134,11 @@ module.exports = {
       queue.connection = connection;
 
       // Event handlers
-      connection.player.on(AudioPlayerStatus.Idle, () => handleIdle({ connection, client, queue }));
+      connection.player.on(AudioPlayerStatus.Idle, () => handleIdle({ interaction, connection, client, queue }));
       connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) =>
-        handleDisconnect(oldState, newState, { connection, client, queue })
+        handleDisconnect(oldState, newState, { interaction, connection, client, queue })
       );
+      player.on("error", async (error) => handlePlayerError(error, { interaction, connection, client, queue }));
     }
 
     try {
@@ -174,7 +175,7 @@ module.exports = {
 };
 
 // Handle idle state of the audio player
-function handleIdle({ connection, client, queue }) {
+function handleIdle({ interaction, connection, client, queue }) {
   if (queue.length() > 0) {
     // Play the next song in the queue
     const next = queue.next();
@@ -185,12 +186,12 @@ function handleIdle({ connection, client, queue }) {
   } else {
     // No more songs to play, disconnect
     connection.destroy();
-    delete queue;
+    delete client.queues[interaction.guild.id];
   }
 }
 
 // Handle disconnection from the voice channel
-async function handleDisconnect(oldState, newState, { connection, client, queue }) {
+async function handleDisconnect(oldState, newState, { interaction, connection, client, queue }) {
   try {
     await Promise.race([
       entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
@@ -200,6 +201,24 @@ async function handleDisconnect(oldState, newState, { connection, client, queue 
   } catch (error) {
     // Seems to be a real disconnect which SHOULDN'T be recovered from
     connection.destroy();
-    delete queue;
+    delete client.queues[interaction.guild.id];
+  }
+}
+
+async function handlePlayerError(error, { interaction, connection, client, queue }) {
+  console.log(error);
+  if (queue.length() > 0) {
+    // Play the next song in the queue
+    const next = queue.next();
+    const next_stream = ytdl(next, client.ytdl_options);
+    // const next_stream = yt_dl(next, client.ytdl_options, { stdio: ["ignore", "pipe", "ignore"] });
+    const next_resource = createAudioResource(next_stream, { inputType: StreamType.Arbitrary });
+
+    connection.player.play(next_resource);
+  } else {
+    // No more songs to play, disconnect
+    connection.destroy();
+    delete client.queues[interaction.guild.id];
+    console.log(client.queues);
   }
 }

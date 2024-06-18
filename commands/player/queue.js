@@ -32,7 +32,7 @@ module.exports = {
 
         for (let i = 0; i < songs.length; i++) {
           const song = songs[i];
-          const song_info = await ytdl.getInfo(song, client.ytdl_options);
+          const song_info = await ytdl.getInfo(song);
           description.push(`${i + 1}: ${song_info.videoDetails.title}`);
         }
 
