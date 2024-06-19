@@ -59,7 +59,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 });
 
-client.queues = {};
+client.players = {};
 client.ytdl_options = { filter: "audioonly", quality: "highestaudio", liveBuffer: 2000, highWaterMark: 1 << 25 };
 
 client.once(Events.ClientReady, (readyClient) => {
