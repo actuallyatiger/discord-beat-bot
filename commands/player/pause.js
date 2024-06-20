@@ -20,16 +20,15 @@ module.exports = {
 
     await interaction.deferReply();
 
-    const queue = client.queues[interaction.guild.id];
-    if (queue) {
-      if (queue.connection.player.state.status === "playing") {
-        queue.connection.player.pause();
-        await interaction.editReply({ content: "Paused" });
-      } else {
-        return interaction.editReply({ content: "Player is not currently playing" });
-      }
+    const player = client.players[interaction.guild.id];
+
+    const paused = player.pause();
+
+    if (paused) {
+      interaction.editReply({ content: "Playback has been paused." });
     } else {
-      return interaction.editReply({ content: "No queue currently exists" });
+      interaction.editReply({ content: "Playback is already paused." });
     }
+
   },
 };

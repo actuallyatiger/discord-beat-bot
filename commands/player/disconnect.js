@@ -20,11 +20,14 @@ module.exports = {
 
     await interaction.deferReply();
 
-    const queue = client.queues[interaction.guild.id];
-    if (queue) {
-      queue.connection.destroy();
-      delete queue;
+    const player = client.players[interaction.guild.id];
+
+    if (!player) {
+      return interaction.editReply({ content: "No queue currently exists" });
     }
+
+    player.connection.destroy();
+    delete client.players[interaction.guild.id];
 
     await interaction.editReply({ content: "Disconnected" });
   },

@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require("discord.js");
-const { createAudioResource, StreamType, getVoiceConnection } = require("@discordjs/voice");
-const ytdl = require("ytdl-core");
+const { getVoiceConnection } = require("@discordjs/voice");
 
 module.exports = {
   data: new SlashCommandBuilder().setName("skip").setDescription("Skip the current song"),
@@ -21,23 +20,20 @@ module.exports = {
 
     await interaction.deferReply();
 
-    const queue = client.queues[interaction.guild.id];
-    if (queue) {
-      if (queue.length() > 0) {
-        // Get the next song in the queue
-        const next = queue.next();
-        const next_stream = ytdl(next, client.ytdl_options);
-        const next_resource = createAudioResource(next_stream, { inputType: StreamType.Arbitrary });
+    const player = client.players[interaction.guild.id];
 
-        // Play the next song
-        queue.connection.player.play(next_resource);
-
-        await interaction.editReply({ content: "Skipped" });
-      } else {
-        return interaction.editReply({ content: "No more songs to skip" });
-      }
-    } else {
+    if (!player) {
       return interaction.editReply({ content: "No queue currently exists" });
     }
+
+    if (player.queue.length() === 0) {
+      return interaction.editReply({ content: "The queue is empty" });
+    }
+
+    // enter idle state so the idle handler can play the next song
+    player.connection.audioPlayer.stop(true);
+
+    await interaction.editReply({ content: "Song skipped" });
+
   },
 };

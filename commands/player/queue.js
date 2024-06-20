@@ -21,30 +21,33 @@ module.exports = {
 
     await interaction.deferReply();
 
-    const queue = client.queues[interaction.guild.id];
-    if (queue) {
-      if (queue.length() === 0) {
-        return interaction.editReply({ content: "No songs in the queue" });
-      } else {
-        // get the songs from the queue, get the titles from ytdl and put them in an embed as a reponse
-        const songs = queue.get();
-        const description = [];
+    const player = client.players[interaction.guild.id];
 
-        for (let i = 0; i < songs.length; i++) {
-          const song = songs[i];
-          const song_info = await ytdl.getInfo(song);
-          description.push(`${i + 1}: ${song_info.videoDetails.title}`);
-        }
-
-        const embed = new EmbedBuilder()
-          .setTitle("Queue")
-          .setDescription(`Next ${songs.length} songs in the queue:\n${description.join("\n")}`)
-          .setFooter({ text: `Total queue length: ${queue.length()} songs` });
-
-        return interaction.editReply({ embeds: [embed] });
-      }
-    } else {
+    if (!player) {
       return interaction.editReply({ content: "No queue currently exists" });
     }
+
+    if (player.queue.length() === 0) {
+      return interaction.editReply({ content: "No songs in the queue" });
+    }
+
+    // get the songs from the queue, get the titles from ytdl and put them in an embed as a reponse
+    const songs = player.queue.get();
+    const description = [];
+
+    for (let i = 0; i < songs.length; i++) {
+      const song = songs[i];
+      const song_info = await ytdl.getInfo(song);
+      description.push(`${i + 1}: ${song_info.videoDetails.title}`);
+    }
+
+    const embed = new EmbedBuilder()
+      .setTitle("Queue")
+      .setDescription(`Next ${songs.length} songs in the queue:\n${description.join("\n")}`)
+      .setFooter({ text: `Total queue length: ${player.queue.length()} songs` });
+
+    return interaction.editReply({ embeds: [embed] });
+
+
   },
 };

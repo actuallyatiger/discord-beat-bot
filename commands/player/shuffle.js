@@ -20,16 +20,13 @@ module.exports = {
 
     await interaction.deferReply();
 
-    const queue = client.queues[interaction.guild.id];
-    if (queue) {
-      if (queue.length() === 0) {
-        return interaction.editReply({ content: "No songs in the queue to shuffle" });
-      } else {
-        queue.shuffle();
-        return interaction.editReply({ content: "Shuffled" });
-      }
-    } else {
-      return interaction.editReply({ content: "No queue currently exists" });
+    const player = client.players[interaction.guild.id];
+
+    if (player.queue.length < 2) {
+      return interaction.editReply({ content: "There are not enough songs in the queue to shuffle." });
     }
+    player.queue.shuffle();
+
+    await interaction.editReply({ content: "Queue has been shuffled." });
   },
 };

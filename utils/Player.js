@@ -190,6 +190,10 @@ module.exports = class Player {
   }
 
   resume() {
-    return this.connection.audioPlayer.resume();
+    return this.connection.audioPlayer.unpause();
+  }
+
+  clearQueue() {
+    this.queue.clear();
   }
 };

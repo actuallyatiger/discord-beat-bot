@@ -20,12 +20,14 @@ module.exports = {
 
     await interaction.deferReply();
 
-    const queue = client.queues[interaction.guild.id];
-    if (queue) {
-      queue.clear();
-      await interaction.editReply({ content: "Queue cleared" });
-    } else {
-      await interaction.editReply({ content: "No queue currently exists" });
+    const player = client.players[interaction.guild.id];
+
+    if (player.queue.length === 0) {
+      return interaction.editReply({ content: "The queue is already empty." });
     }
+
+    player.clearQueue();
+
+    await interaction.editReply({ content: "Queue has been cleared." });
   },
 };
