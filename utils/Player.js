@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require("discord.js");
-const { AudioPlayerStatus, VoiceConnectionStatus } = require("@discordjs/voice");
+const { AudioPlayerStatus, VoiceConnectionStatus, entersState } = require("@discordjs/voice");
 const youtubesearchapi = require("youtube-search-api");
 const ytdl = require("ytdl-core");
 const Queue = require("./Queue");
@@ -111,7 +111,7 @@ module.exports = class Player {
     this.connection = new Connection(this.channel_id, this.guild_id, interaction);
 
     // Idle Audio Player
-    this.connection.player.on(AudioPlayerStatus.Idle, () => {
+    this.connection.audioPlayer.on(AudioPlayerStatus.Idle, () => {
       switch (this.repeat) {
         case Repeat.ONE:
           this.connection.play(this.now_playing);
@@ -155,7 +155,7 @@ module.exports = class Player {
     });
 
     // Handle player errors
-    this.connection.player.on("error", (error) => {
+    this.connection.audioPlayer.on("error", (error) => {
       console.error(error);
 
       // Play the next song
@@ -165,5 +165,31 @@ module.exports = class Player {
       this.connection.becomeIdle();
       this.repeat = old_repeat;
     });
+
+    this.client.on("voiceStateUpdate", async (_, newState) => {
+      // this.channel_id = newState.channelId || this.channel_id;
+
+      // get the number of users in the voice channel, excluding the bot
+      const voice_channel = await this.client.guilds.cache
+        .get(this.guild_id)
+        .channels.fetch(this.channel_id, { force: true });
+      const count = voice_channel.members.size;
+      if (count === 1) {
+        try {
+          this.connection.destroy();
+        } catch {
+          // Do nothing, already destroyed
+        }
+        delete this.client.players[this.guild_id];
+      }
+    });
+  }
+
+  pause() {
+    return this.connection.audioPlayer.pause();
+  }
+
+  resume() {
+    return this.connection.audioPlayer.resume();
   }
 };

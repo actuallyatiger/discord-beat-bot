@@ -14,19 +14,19 @@ module.exports = class Connection {
       adapterCreator: interaction.guild.voiceAdapterCreator,
     });
 
-    this.player = createAudioPlayer();
-    this.connection.subscribe(this.player);
+    this.audioPlayer = createAudioPlayer();
+    this.connection.subscribe(this.audioPlayer);
   }
 
   play(url) {
     const stream = ytdl(url, ytdl_options);
     const resource = createAudioResource(stream, { inputType: StreamType.Arbitrary });
 
-    this.player.play(resource);
+    this.audioPlayer.play(resource);
   }
 
   becomeIdle() {
-    this.player.stop(true);
+    this.audioPlayer.stop(true);
   }
 
   destroy() {

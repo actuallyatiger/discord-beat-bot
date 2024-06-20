@@ -5,7 +5,6 @@ module.exports = class Queue {
     } else {
       this.queue = [];
     }
-    this.connection = null;
   }
 
   add(...songs) {
