@@ -30,40 +30,36 @@ module.exports = class Player {
     this.connection = null;
   }
 
-  async add(query, interaction) {
-    let from_playlist = false;
-    let yt_id = "";
-    // Check if the query is a video link
+  async getYTid(query, interaction) {
     if (link_re.test(query)) {
-      const { video_id } = link_re.exec(query).groups;
-      yt_id = video_id;
-      this.queue.add(video_id);
+      return { id: link_re.exec(query).groups.video_id, type: "video" };
+    }
+    if (playlist_re.test(query)) {
+      return { id: playlist_re.exec(query).groups.playlist_id, type: "playlist" };
+    }
+    try {
+      const result = await youtubesearchapi.GetListByKeyword(query, false, 5);
 
-      // Check if the query is a playlist link
-    } else if (playlist_re.test(query)) {
-      const { playlist_id } = playlist_re.exec(query).groups;
-      yt_id = playlist_id;
-      const playlist = await youtubesearchapi.GetPlaylistData(playlist_id);
+      if (result.items.length === 0) {
+        return interaction.editReply({ content: "No videos found with that query." });
+      }
+      return { id: result.items[0].id, type: "video" };
+    } catch (err) {
+      return interaction.editReply({ content: "An error occurred while searching for videos." });
+    }
+  }
+
+  async add(query, interaction) {
+    const { id: yt_id, type } = await this.getYTid(query, interaction);
+
+    if (type === "video") {
+      this.queue.add(yt_id);
+    } else {
+      const playlist = await youtubesearchapi.GetPlaylistData(yt_id);
 
       playlist.items.forEach((video) => {
         this.queue.add(video.id);
       });
-
-      from_playlist = true;
-
-      // Handle search query
-    } else {
-      try {
-        const result = await youtubesearchapi.GetListByKeyword(query, false, 5);
-
-        if (result.items.length === 0) {
-          return interaction.editReply({ content: "No videos found with that query." });
-        }
-        yt_id = result.items[0].id;
-        this.queue.add(yt_id);
-      } catch (err) {
-        return interaction.editReply({ content: "An error occurred while searching for videos." });
-      }
     }
 
     let description = "";
@@ -80,7 +76,7 @@ module.exports = class Player {
 
     const embed = new EmbedBuilder();
 
-    if (!from_playlist) {
+    if (type === "video") {
       const info = await ytdl.getInfo(yt_id);
       embed
         .setTitle(info.videoDetails.title)
@@ -195,5 +191,62 @@ module.exports = class Player {
 
   clearQueue() {
     this.queue.clear();
+  }
+
+  async insert(pos, query, interaction) {
+    const { id: yt_id, type } = await this.getYTid(query, interaction);
+
+    if (type === "video") {
+      this.queue.insert(pos - 1, yt_id);
+    } else {
+      const playlist = await youtubesearchapi.GetPlaylistData(yt_id);
+      const items = playlist.items.map((video) => video.id);
+
+      this.queue.insert(pos - 1, ...items);
+    }
+
+    const embed = new EmbedBuilder();
+
+    if (type === "video") {
+      const info = await ytdl.getInfo(yt_id);
+      embed
+        .setTitle(info.videoDetails.title)
+        .setURL(info.videoDetails.video_url)
+        .setThumbnail(info.videoDetails.thumbnails[0].url)
+        .setDescription(`Added to queue at position ${pos}`)
+        .setFooter({
+          text: `Duration: ${Math.floor(info.videoDetails.lengthSeconds / 60)}:${(
+            "0" +
+            (info.videoDetails.lengthSeconds % 60)
+          ).slice(-2)}`,
+        });
+    } else {
+      const playlist = await youtubesearchapi.GetPlaylistData(yt_id);
+      const info = await ytdl.getInfo(playlist.items[0].id);
+      embed
+        .setTitle("Playlist Added")
+        .setURL(`https://www.youtube.com/playlist?list=${yt_id}`)
+        .setThumbnail(info.videoDetails.thumbnails[0].url)
+        .setDescription(`Added to queue at position ${pos}`)
+        .setFooter({ text: `Number of videos: ${playlist.items.length}` });
+    }
+
+    interaction.editReply({ embeds: [embed] });
+  }
+
+  setRepeatMode(mode, interaction) {
+    switch (mode) {
+      case "off":
+        this.repeat = Repeat.OFF;
+        break;
+      case "all":
+        this.repeat = Repeat.ALL;
+        break;
+      case "one":
+        this.repeat = Repeat.ONE;
+        break;
+      default:
+        return interaction.reply({ content: "Invalid repeat mode.", ephemeral: true });
+    }
   }
 };

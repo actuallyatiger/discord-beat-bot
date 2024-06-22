@@ -15,8 +15,8 @@ module.exports = class Queue {
     return this.queue.shift();
   }
 
-  insert(song, pos) {
-    this.queue.splice(pos, 0, song);
+  insert(pos, ...songs) {
+    this.queue.splice(pos, 0, ...songs);
   }
 
   remove(pos) {
