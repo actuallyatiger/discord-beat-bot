@@ -8,7 +8,7 @@ module.exports = {
     .setDescription("Insert a song into the queue")
     .addStringOption((option) => option.setName("query").setDescription("The song to insert").setRequired(true))
     .addIntegerOption((option) =>
-      option.setName("position").setDescription("The position to insert the song at").setRequired(true)
+      option.setName("position").setDescription("The position to insert the song at").setMinValue(1).setRequired(true)
     ),
 
   async execute({ client, interaction }) {
@@ -36,7 +36,7 @@ module.exports = {
     const query = interaction.options.getString("query");
     const pos = interaction.options.getInteger("position");
     // check if pos is a valid position
-    if (pos < 1 || pos > player.queue.length() + 1) {
+    if (pos > player.queue.length() + 1) {
       return interaction.editReply({ content: "Invalid position" });
     }
 
