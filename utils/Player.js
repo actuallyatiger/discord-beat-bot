@@ -4,16 +4,11 @@ const youtubesearchapi = require("youtube-search-api");
 const ytdl = require("ytdl-core");
 const Queue = require("./Queue");
 const Connection = require("./Connection");
+const { Repeat } = require("./types");
 
 const link_re = /^(?:https?:\/\/)?(?:(?:www\.)?youtube\.com\/watch\?v=|youtu.be\/)(?<video_id>[\w-]{11})/;
 const playlist_re =
   /^(?:https?:\/\/)?(?:(?:www\.)?youtube.com\/playlist\?list=|music.youtube.com\/playlist\?list=)(?<playlist_id>[\w-]{34})/;
-
-const Repeat = Object.freeze({
-  OFF: Symbol("off"),
-  ALL: Symbol("all"),
-  ONE: Symbol("one"),
-});
 
 module.exports = class Player {
   constructor(channel_id, guild_id, client) {

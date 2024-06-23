@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require("discord.js");
 const { getVoiceConnection } = require("@discordjs/voice");
+const { Repeat } = require("../../utils/types");
 
 module.exports = {
   data: new SlashCommandBuilder().setName("skip").setDescription("Skip the current song"),
@@ -33,7 +34,7 @@ module.exports = {
     // enter idle state so the idle handler can play the next song
     // Temporarily set repeat mode to off to prevent the current song from being repeated
     const repeatMode = player.repeat;
-    player.setRepeatMode("off");
+    if (repeatMode === Repeat.ONE) player.setRepeatMode("all");
     player.connection.audioPlayer.stop(true);
     player.setRepeatMode(repeatMode);
 
