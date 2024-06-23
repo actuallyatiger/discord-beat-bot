@@ -6,6 +6,37 @@ const token = process.env.TOKEN;
 
 const { ActivityType, Client, Collection, Events, GatewayIntentBits } = require("discord.js");
 
+// winston logging of erros/info, with a daily rotate. output to the logs folder
+const winston = require("winston");
+const DailyRotateFile = require("winston-daily-rotate-file");
+
+const logger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new DailyRotateFile({
+      filename: "logs/%DATE%.log",
+      datePattern: "YYYY-MM-DD",
+      zippedArchive: true,
+      maxFiles: "14d",
+      maxSize: "20m",
+    }),
+  ],
+});
+
+logger.add(
+  new winston.transports.Console({
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.simple()
+    ),
+  })
+);
+
+
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildVoiceStates],
   presence: {
@@ -37,14 +68,14 @@ client.on(Events.InteractionCreate, async (interaction) => {
   const command = interaction.client.commands.get(interaction.commandName);
 
   if (!command) {
-    console.error(`No command matching ${interaction.commandName} was found.`);
+    logger.error(`Command ${interaction.commandName} not found`);
     return;
   }
 
   try {
     await command.execute({ client, interaction });
   } catch (error) {
-    console.error(error);
+    logger.error(`Error executing command ${interaction.commandName}: ${error}`);
     if (interaction.replied || interaction.deferred) {
       await interaction.followUp({
         content: "There was an error while executing this command!",
