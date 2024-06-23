@@ -26,17 +26,18 @@ module.exports = {
         ephemeral: true,
       });
     }
+
     const player = client.players[interaction.guild.id];
     if (!player) {
       return interaction.reply({ content: "No player found.", ephemeral: true });
     }
 
-    interaction.deferReply();
+    await interaction.deferReply();
 
     const mode = interaction.options.getString("mode");
 
-    player.setRepeatMode(mode, interaction);
+    player.setRepeatMode(mode);
 
-    return interaction.reply({ content: `Repeat mode set to ${mode}.` });
+    return interaction.editReply({ content: `Repeat mode set to ${mode}.` });
   },
 };

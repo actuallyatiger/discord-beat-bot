@@ -21,12 +21,12 @@ module.exports = {
       });
     }
 
-    interaction.deferReply();
+    await interaction.deferReply();
 
     const player = client.players[interaction.guild.id];
 
     if (!player) {
-      return interaction.reply({ content: "No queue currently exists.", ephemeral: true });
+      return interaction.editReply({ content: "No queue currently exists.", ephemeral: true });
     }
 
     const query = interaction.options.getString("query");

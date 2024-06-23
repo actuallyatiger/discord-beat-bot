@@ -234,7 +234,7 @@ module.exports = class Player {
     interaction.editReply({ embeds: [embed] });
   }
 
-  setRepeatMode(mode, interaction) {
+  setRepeatMode(mode) {
     switch (mode) {
       case "off":
         this.repeat = Repeat.OFF;
@@ -245,8 +245,6 @@ module.exports = class Player {
       case "one":
         this.repeat = Repeat.ONE;
         break;
-      default:
-        return interaction.reply({ content: "Invalid repeat mode.", ephemeral: true });
     }
   }
 };
