@@ -234,6 +234,19 @@ module.exports = class Player {
     interaction.editReply({ embeds: [embed] });
   }
 
+  async remove(pos, interaction) {
+    const removed = this.queue.remove(pos - 1);
+
+    const info = await ytdl.getInfo(removed[0]);
+    const embed = new EmbedBuilder()
+      .setTitle("Removed")
+      .setDescription(info.videoDetails.title)
+      .setURL(info.videoDetails.video_url)
+      .setThumbnail(info.videoDetails.thumbnails[0].url);
+
+    interaction.editReply({ embeds: [embed] });
+  }
+
   setRepeatMode(mode) {
     switch (mode) {
       case "off":
