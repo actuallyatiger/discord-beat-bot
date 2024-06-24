@@ -1,11 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const Player = require("../../utils/Player");
-
+const { SlashCommandBuilder } = require("discord.js");
 const { getVoiceConnection } = require("@discordjs/voice");
-
-const link_re = /^(?:https?:\/\/)?(?:(?:www\.)?youtube\.com\/watch\?v=|youtu.be\/)(?<video_id>[\w-]{11})/;
-const playlist_re =
-  /^(?:https?:\/\/)?(?:(?:www\.)?youtube.com\/playlist\?list=|music.youtube.com\/playlist\?list=)(?<playlist_id>[\w-]{34})/;
+const Player = require("../../utils/Player");
 
 module.exports = {
   data: new SlashCommandBuilder()

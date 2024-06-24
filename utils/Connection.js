@@ -31,6 +31,10 @@ module.exports = class Connection {
 
   destroy() {
     this.becomeIdle();
-    this.connection.destroy();
+    try {
+      this.connection.destroy();
+    } catch {
+      // Do nothing
+    }
   }
 };

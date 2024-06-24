@@ -119,7 +119,11 @@ module.exports = class Player {
             this.now_playing = this.queue.next();
             this.connection.play(this.now_playing);
           } else {
-            this.connection.destroy();
+            try {
+              this.connection.destroy();
+            } catch {
+              // Do nothing, already destroyed
+            }
             delete this.client.players[this.guild_id];
           }
           break;
