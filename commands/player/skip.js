@@ -34,8 +34,10 @@ module.exports = {
     // enter idle state so the idle handler can play the next song
     // Temporarily set repeat mode to off to prevent the current song from being repeated
     const repeatMode = player.repeat;
-    if (repeatMode === Repeat.ONE) player.setRepeatMode(Repeat.ALL);
-    player.becomeIdle();
+    if (repeatMode === Repeat.ONE) {
+      player.setRepeatMode(Repeat.ALL);
+    }
+    player.connection.becomeIdle();
     player.setRepeatMode(repeatMode);
 
     await interaction.editReply({ content: "Song skipped" });

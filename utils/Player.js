@@ -257,6 +257,12 @@ module.exports = class Player {
       case "one":
         this.repeat = Repeat.ONE;
         break;
+      default:
+        // if mode is one of the Repeat enum values, set it directly
+        if (Object.values(Repeat).includes(mode)) {
+          this.repeat = mode;
+        }
+        break;
     }
   }
 };

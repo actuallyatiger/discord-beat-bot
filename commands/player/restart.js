@@ -29,7 +29,7 @@ module.exports = {
 
     const repeatMode = player.repeat;
     player.setRepeatMode(Repeat.ONE);
-    player.becomeIdle();
+    player.connection.becomeIdle();
     player.setRepeatMode(repeatMode);
   },
 };
