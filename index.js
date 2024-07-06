@@ -12,13 +12,10 @@ const DailyRotateFile = require("winston-daily-rotate-file");
 
 const logger = winston.createLogger({
   level: "info",
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
   transports: [
     new DailyRotateFile({
-      filename: "logs/%DATE%.log",
+      filename: "logs/bot/%DATE%.log",
       datePattern: "YYYY-MM-DD",
       zippedArchive: true,
       maxFiles: "14d",
