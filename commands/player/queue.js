@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const { getVoiceConnection } = require("@discordjs/voice");
-const ytdl = require("ytdl-core");
+const ytdl = require("@distube/ytdl-core");
 
 module.exports = {
   data: new SlashCommandBuilder().setName("queue").setDescription("Get the songs in the queue"),

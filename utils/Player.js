@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require("discord.js");
 const { AudioPlayerStatus, VoiceConnectionStatus, entersState } = require("@discordjs/voice");
 const youtubesearchapi = require("youtube-search-api");
-const ytdl = require("ytdl-core");
+const ytdl = require("@distube/ytdl-core");
 const Queue = require("./Queue");
 const Connection = require("./Connection");
 const { Repeat } = require("./types");

@@ -1,6 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const { getVoiceConnection } = require("@discordjs/voice");
-const ytdl = require("ytdl-core");
 
 module.exports = {
   data: new SlashCommandBuilder()
