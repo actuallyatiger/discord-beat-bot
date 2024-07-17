@@ -105,6 +105,7 @@ class YouTubeAPI {
           logger.error(`Response error: ${res.data.error}`);
           return null;
         }
+
         res.data.items.map((item) => {
           playlist.items.push({
             title: item.snippet.title,

@@ -39,7 +39,7 @@ module.exports = {
       const song = songs[i];
       // const song_info = await ytdl.getInfo(song);
       const song_info = await ytapi.getVideoInfo(song);
-      description.push(`${i + 1}: ${song_info.videoDetails.title}`);
+      description.push(`${i + 1}: ${song_info.title}`);
     }
 
     const embed = new EmbedBuilder()

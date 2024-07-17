@@ -47,7 +47,7 @@ module.exports = class Player {
   async add(query, interaction) {
     const { id: yt_id, type } = await this.getYTid(query, interaction);
 
-    let playlist = null;
+    let playlist = { items: [] };
 
     if (type === "video") {
       this.queue.add(yt_id);
@@ -73,7 +73,6 @@ module.exports = class Player {
     const embed = new EmbedBuilder();
 
     if (type === "video") {
-      // const info = await ytdl.getInfo(yt_id);
       const info = await ytapi.getVideoInfo(yt_id);
       embed
         .setTitle(info.title)
@@ -217,8 +216,6 @@ module.exports = class Player {
           text: `Duration: ${Math.floor(info.duration / 60)}:${("0" + (info.duration % 60)).slice(-2)}`,
         });
     } else {
-      // const playlist = await youtubesearchapi.GetPlaylistData(yt_id);
-      // const info = await ytdl.getInfo(playlist.items[0].id);
       const playlist = await ytapi.getPlaylistInfo(yt_id);
       const info = await ytapi.getVideoInfo(playlist.items[0].id);
       embed
@@ -235,7 +232,6 @@ module.exports = class Player {
   async remove(pos, interaction) {
     const removed = this.queue.remove(pos - 1);
 
-    // const info = await ytdl.getInfo(removed[0]);
     const info = await ytapi.getVideoInfo(removed[0]);
     const embed = new EmbedBuilder()
       .setTitle("Removed")
