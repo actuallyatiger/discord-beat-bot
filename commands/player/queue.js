@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const { getVoiceConnection } = require("@discordjs/voice");
-const ytdl = require("@distube/ytdl-core");
+const { ytapi } = require("../../utils/YouTubeAPI");
 
 module.exports = {
   data: new SlashCommandBuilder().setName("queue").setDescription("Get the songs in the queue"),
@@ -37,7 +37,8 @@ module.exports = {
 
     for (let i = 0; i < songs.length; i++) {
       const song = songs[i];
-      const song_info = await ytdl.getInfo(song);
+      // const song_info = await ytdl.getInfo(song);
+      const song_info = await ytapi.getVideoInfo(song);
       description.push(`${i + 1}: ${song_info.videoDetails.title}`);
     }
 
@@ -47,7 +48,5 @@ module.exports = {
       .setFooter({ text: `Total queue length: ${player.queue.length()} songs` });
 
     return interaction.editReply({ embeds: [embed] });
-
-
   },
 };

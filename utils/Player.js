@@ -1,15 +1,16 @@
 const { EmbedBuilder } = require("discord.js");
 const { AudioPlayerStatus, VoiceConnectionStatus, entersState } = require("@discordjs/voice");
-const youtubesearchapi = require("youtube-search-api");
 const ytdl = require("@distube/ytdl-core");
 const Queue = require("./Queue");
 const Connection = require("./Connection");
 const { Repeat } = require("./types");
+const { ytapi } = require("./YouTubeAPI");
 
 const link_re = /^(?:https?:\/\/)?(?:(?:www\.)?youtube\.com\/watch\?v=|youtu.be\/)(?<video_id>[\w-]{11})/;
 // note: YT has 66 playlist ID formats so this regex is not exhaustive but I'm not going to list all of them
 const playlist_re =
   /^(?:https?:\/\/)?(?:(?:www\.)?youtube.com\/playlist\?list=|music.youtube.com\/playlist\?list=)(?<playlist_id>[\w-]+)(?:[\/\?\&\#]?.*)/;
+
 
 module.exports = class Player {
   constructor(channel_id, guild_id, client) {
@@ -29,30 +30,29 @@ module.exports = class Player {
   async getYTid(query, interaction) {
     if (link_re.test(query)) {
       return { id: link_re.exec(query).groups.video_id, type: "video" };
-    }
-    if (playlist_re.test(query)) {
+    } else if (playlist_re.test(query)) {
       return { id: playlist_re.exec(query).groups.playlist_id, type: "playlist" };
-    }
-    try {
-      const result = await youtubesearchapi.GetListByKeyword(query, false, 5);
-
+    } else {
+      const result = await ytapi.search(query);
+      if (!result) {
+        return interaction.editReply({ content: "An error occurred while searching for videos." });
+      }
       if (result.items.length === 0) {
         return interaction.editReply({ content: "No videos found with that query." });
       }
       return { id: result.items[0].id, type: "video" };
-    } catch (err) {
-      return interaction.editReply({ content: "An error occurred while searching for videos." });
     }
   }
 
   async add(query, interaction) {
     const { id: yt_id, type } = await this.getYTid(query, interaction);
 
+    let playlist = null;
+
     if (type === "video") {
       this.queue.add(yt_id);
     } else {
-      const playlist = await youtubesearchapi.GetPlaylistData(yt_id);
-
+      playlist = await ytapi.getPlaylistInfo(yt_id);
       playlist.items.forEach((video) => {
         this.queue.add(video.id);
       });
@@ -73,25 +73,22 @@ module.exports = class Player {
     const embed = new EmbedBuilder();
 
     if (type === "video") {
-      const info = await ytdl.getInfo(yt_id);
+      // const info = await ytdl.getInfo(yt_id);
+      const info = await ytapi.getVideoInfo(yt_id);
       embed
-        .setTitle(info.videoDetails.title)
-        .setURL(info.videoDetails.video_url)
-        .setThumbnail(info.videoDetails.thumbnails[0].url)
+        .setTitle(info.title)
+        .setURL(`https://www.youtube.com/watch?v=${yt_id}`)
+        .setThumbnail(info.thumbnail.url)
         .setDescription(description)
         .setFooter({
-          text: `Duration: ${Math.floor(info.videoDetails.lengthSeconds / 60)}:${(
-            "0" +
-            (info.videoDetails.lengthSeconds % 60)
-          ).slice(-2)}`,
+          text: `Duration: ${Math.floor(info.duration / 60)}:${("0" + (info.duration % 60)).slice(-2)}`,
         });
     } else {
-      const playlist = await youtubesearchapi.GetPlaylistData(yt_id);
-      const info = await ytdl.getInfo(playlist.items[0].id);
+      const info = await ytapi.getVideoInfo(playlist.items[0].id);
       embed
         .setTitle("Playlist Added")
         .setURL(`https://www.youtube.com/playlist?list=${yt_id}`)
-        .setThumbnail(info.videoDetails.thumbnails[0].url)
+        .setThumbnail(info.thumbnail.url)
         .setDescription(description)
         .setFooter({ text: `Number of videos: ${playlist.items.length}` });
     }
@@ -199,7 +196,8 @@ module.exports = class Player {
     if (type === "video") {
       this.queue.insert(pos - 1, yt_id);
     } else {
-      const playlist = await youtubesearchapi.GetPlaylistData(yt_id);
+      // const playlist = await youtubesearchapi.GetPlaylistData(yt_id);
+      const playlist = await ytapi.getPlaylistInfo(yt_id);
       const items = playlist.items.map((video) => video.id);
 
       this.queue.insert(pos - 1, ...items);
@@ -208,25 +206,25 @@ module.exports = class Player {
     const embed = new EmbedBuilder();
 
     if (type === "video") {
-      const info = await ytdl.getInfo(yt_id);
+      // const info = await ytdl.getInfo(yt_id);
+      const info = await ytapi.getVideoInfo(yt_id);
       embed
-        .setTitle(info.videoDetails.title)
-        .setURL(info.videoDetails.video_url)
-        .setThumbnail(info.videoDetails.thumbnails[0].url)
+        .setTitle(info.title)
+        .setURL(`https://www.youtube.com/watch?v=${yt_id}`)
+        .setThumbnail(info.thumbnail.url)
         .setDescription(`Added to queue at position ${pos}`)
         .setFooter({
-          text: `Duration: ${Math.floor(info.videoDetails.lengthSeconds / 60)}:${(
-            "0" +
-            (info.videoDetails.lengthSeconds % 60)
-          ).slice(-2)}`,
+          text: `Duration: ${Math.floor(info.duration / 60)}:${("0" + (info.duration % 60)).slice(-2)}`,
         });
     } else {
-      const playlist = await youtubesearchapi.GetPlaylistData(yt_id);
-      const info = await ytdl.getInfo(playlist.items[0].id);
+      // const playlist = await youtubesearchapi.GetPlaylistData(yt_id);
+      // const info = await ytdl.getInfo(playlist.items[0].id);
+      const playlist = await ytapi.getPlaylistInfo(yt_id);
+      const info = await ytapi.getVideoInfo(playlist.items[0].id);
       embed
         .setTitle("Playlist Added")
         .setURL(`https://www.youtube.com/playlist?list=${yt_id}`)
-        .setThumbnail(info.videoDetails.thumbnails[0].url)
+        .setThumbnail(info.thumbnail.url)
         .setDescription(`Added to queue at position ${pos}`)
         .setFooter({ text: `Number of videos: ${playlist.items.length}` });
     }
@@ -237,12 +235,13 @@ module.exports = class Player {
   async remove(pos, interaction) {
     const removed = this.queue.remove(pos - 1);
 
-    const info = await ytdl.getInfo(removed[0]);
+    // const info = await ytdl.getInfo(removed[0]);
+    const info = await ytapi.getVideoInfo(removed[0]);
     const embed = new EmbedBuilder()
       .setTitle("Removed")
-      .setDescription(info.videoDetails.title)
-      .setURL(info.videoDetails.video_url)
-      .setThumbnail(info.videoDetails.thumbnails[0].url);
+      .setDescription(info.title)
+      .setURL(`https://www.youtube.com/watch?v=${removed[0]}`)
+      .setThumbnail(info.thumbnail.url);
 
     interaction.editReply({ embeds: [embed] });
   }

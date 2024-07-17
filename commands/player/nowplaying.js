@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const { getVoiceConnection } = require("@discordjs/voice");
-const ytdl = require("@distube/ytdl-core");
+const { ytapi } = require("../../utils/YouTubeAPI");
 
 module.exports = {
   data: new SlashCommandBuilder().setName("nowplaying").setDescription("Get the currently playing song"),
@@ -31,11 +31,12 @@ module.exports = {
       return interaction.editReply({ content: "No song currently playing" });
     }
 
-    const info = await ytdl.getInfo(player.now_playing);
+    // const info = await ytdl.getInfo(player.now_playing);
+    const info = await ytapi.getVideoInfo(player.now_playing);
     const embed = new EmbedBuilder()
       .setTitle("Now Playing")
-      .setDescription(`[${info.videoDetails.title}](${info.videoDetails.video_url})`)
-      .setThumbnail(info.videoDetails.thumbnails[0].url);
+      .setDescription(`[${info.title}](${`https://www.youtube.com/watch?v=${player.now_playing}`})`)
+      .setThumbnail(info.thumbnail.url);
 
     return interaction.editReply({ embeds: [embed] });
   },
