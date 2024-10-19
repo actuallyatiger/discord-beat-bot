@@ -4,7 +4,7 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 
 # Install dependencies
-RUN apk add --no-cache ffmpeg make python3 g++ gcc
+RUN apk add --no-cache ffmpeg make python3 g++ gcc libtool
 
 # Install app dependencies
 COPY package*.json ./
