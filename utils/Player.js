@@ -6,10 +6,10 @@ const Connection = require("./Connection");
 const { Repeat } = require("./types");
 const { ytapi } = require("./YouTubeAPI");
 
-const link_re = /^(?:https?:\/\/)?(?:(?:www\.)?youtube\.com\/watch\?v=|youtu.be\/)(?<video_id>[\w-]{11})/;
+const link_re = /^(?:https?:\/\/)?(?:(?:www\.|m\.)?youtube\.com\/watch\?v=|youtu.be\/)(?<video_id>[\w-]{11})/;
 // note: YT has 66 playlist ID formats so this regex is not exhaustive but I'm not going to list all of them
 const playlist_re =
-  /^(?:https?:\/\/)?(?:(?:www\.)?youtube.com\/playlist\?list=|music.youtube.com\/playlist\?list=)(?<playlist_id>[\w-]+)(?:[\/\?\&\#]?.*)/;
+  /^(?:https?:\/\/)?(?:(?:www\.|m\.)?youtube.com\/playlist\?list=|music.youtube.com\/playlist\?list=)(?<playlist_id>[\w-]+)(?:[\/\?\&\#]?.*)/;
 
 
 module.exports = class Player {
