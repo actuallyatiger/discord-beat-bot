@@ -107,6 +107,9 @@ class YouTubeAPI {
         }
 
         res.data.items.map((item) => {
+          if (item.snippet.title === "Deleted video" || item.snippet.title === "Private video") {
+            return;
+          }
           playlist.items.push({
             title: item.snippet.title,
             id: item.snippet.resourceId.videoId,
