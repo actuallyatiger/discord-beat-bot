@@ -261,4 +261,13 @@ module.exports = class Player {
         break;
     }
   }
+
+  skipto(pos) {
+    if (this.repeat === Repeat.ALL) {
+      this.queue.skipto(pos, true);
+    } else {
+      this.queue.skipto(pos);
+    }
+    this.connection.becomeIdle();
+  }
 };

@@ -41,4 +41,11 @@ module.exports = class Queue {
   clear() {
     this.queue = [];
   }
+
+  skipto(pos, readd = false) {
+    const removed = this.queue.splice(0, pos);
+    if (readd) {
+      this.queue.push(...removed);
+    }
+  }
 };

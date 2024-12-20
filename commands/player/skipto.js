@@ -1,12 +1,11 @@
 const { SlashCommandBuilder } = require("discord.js");
-const { getVoiceConnection } = require("@discordjs/voice");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("remove")
-    .setDescription("Remove a song from the queue")
+    .setName("skipto")
+    .setDescription("Skip to a song into the queue")
     .addIntegerOption((option) =>
-      option.setName("position").setDescription("The position of the song to remove").setMinValue(1).setRequired(true)
+      option.setName("position").setDescription("The position to skip to").setMinValue(1).setRequired(true)
     ),
 
   async execute({ client, interaction }) {
@@ -23,12 +22,13 @@ module.exports = {
       });
     }
 
-    const player = client.players[interaction.guild.id];
-    if (!player) {
-      return interaction.reply({ content: "No player found.", ephemeral: true });
-    }
-
     await interaction.deferReply();
+
+    const player = client.players[interaction.guild.id];
+
+    if (!player) {
+      return interaction.editReply({ content: "No queue currently exists" });
+    }
 
     const pos = interaction.options.getInteger("position");
 
@@ -36,6 +36,13 @@ module.exports = {
       return interaction.editReply({ content: "Invalid position" });
     }
 
-    await player.remove(pos);
+    const repeatMode = player.repeat;
+    if (repeatMode === Repeat.ONE) {
+      player.setRepeatMode(Repeat.ALL);
+    }
+    player.skipto(pos);
+    player.setRepeatMode(repeatMode);
+
+    await interaction.editReply({ content: `Skipped to position ${pos}` });
   },
 };
