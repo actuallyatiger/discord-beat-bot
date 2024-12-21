@@ -239,7 +239,7 @@ module.exports = class Player {
       .setURL(`https://www.youtube.com/watch?v=${removed[0]}`)
       .setThumbnail(info.thumbnail.url);
 
-    interaction.editReply({ embeds: [embed] });
+    await interaction.editReply({ embeds: [embed] });
   }
 
   setRepeatMode(mode) {

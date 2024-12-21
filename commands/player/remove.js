@@ -36,6 +36,6 @@ module.exports = {
       return interaction.editReply({ content: "Invalid position" });
     }
 
-    await player.remove(pos);
+    await player.remove(pos, interaction);
   },
 };
