@@ -20,7 +20,7 @@ module.exports = class Queue {
   }
 
   remove(pos) {
-    return this.queue.splice(pos, 1);
+    return this.queue.splice(pos, 1)[0];
   }
 
   get(count = 10) {
@@ -43,7 +43,7 @@ module.exports = class Queue {
   }
 
   skipto(pos, readd = false) {
-    const removed = this.queue.splice(0, pos);
+    const removed = this.queue.splice(0, pos - 1);
     if (readd) {
       this.queue.push(...removed);
     }

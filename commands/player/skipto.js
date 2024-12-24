@@ -1,4 +1,6 @@
 const { SlashCommandBuilder } = require("discord.js");
+const { getVoiceConnection } = require("@discordjs/voice");
+const { Repeat } = require("../../utils/types");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -36,12 +38,7 @@ module.exports = {
       return interaction.editReply({ content: "Invalid position" });
     }
 
-    const repeatMode = player.repeat;
-    if (repeatMode === Repeat.ONE) {
-      player.setRepeatMode(Repeat.ALL);
-    }
     player.skipto(pos);
-    player.setRepeatMode(repeatMode);
 
     await interaction.editReply({ content: `Skipped to position ${pos}` });
   },

@@ -232,7 +232,7 @@ module.exports = class Player {
   async remove(pos, interaction) {
     const removed = this.queue.remove(pos - 1);
 
-    const info = await ytapi.getVideoInfo(removed[0]);
+    const info = await ytapi.getVideoInfo(removed);
     const embed = new EmbedBuilder()
       .setTitle("Removed")
       .setDescription(info.title)
