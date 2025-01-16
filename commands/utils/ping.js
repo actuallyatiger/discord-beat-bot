@@ -6,13 +6,13 @@ module.exports = {
   async execute({ client, interaction }) {
     const sent = await interaction.reply({
       content: "Pinging...",
-      fetchReply: true,
+      withResponse: true,
       flags: MessageFlags.Ephemeral,
     });
     await interaction.editReply({
-      content: `Round-trip: ${sent.createdTimestamp - interaction.createdTimestamp}ms | WS: ${Math.round(
-        client.ws.ping
-      )}ms`,
+      content: `Round-trip: ${
+        sent.resource.message.createdTimestamp - interaction.createdTimestamp
+      }ms | WS: ${Math.round(client.ws.ping)}ms`,
     });
   },
 };
