@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, MessageFlags } = require("discord.js");
 const { getVoiceConnection } = require("@discordjs/voice");
 const Player = require("../../utils/Player");
 
@@ -12,14 +12,17 @@ module.exports = {
     // Check if the user is in a voice channel
     const user_channel = interaction.member.voice.channelId;
     if (!interaction.member.voice.channel) {
-      return interaction.reply({ content: "You must be in a voice channel to use this command.", ephemeral: true });
+      return interaction.reply({
+        content: "You must be in a voice channel to use this command.",
+        flags: MessageFlags.Ephemeral,
+      });
     }
     const client_channel = getVoiceConnection(interaction.guild.id);
     // Check if bot is currently in a voice channel, if so then the user must be in the same one
     if (client_channel && user_channel !== client_channel.joinConfig.channelId) {
       return interaction.reply({
         content: "You must be in the same voice channel as the bot to use this command.",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 

@@ -4,7 +4,7 @@ const path = require("path");
 require("dotenv").config();
 const token = process.env.TOKEN;
 
-const { ActivityType, Client, Collection, Events, GatewayIntentBits } = require("discord.js");
+const { ActivityType, Client, Collection, Events, GatewayIntentBits, MessageFlags } = require("discord.js");
 
 // winston logging of erros/info, with a daily rotate. output to the logs folder
 const winston = require("winston");
@@ -26,13 +26,9 @@ const logger = winston.createLogger({
 
 logger.add(
   new winston.transports.Console({
-    format: winston.format.combine(
-      winston.format.colorize(),
-      winston.format.simple()
-    ),
+    format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
   })
 );
-
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildVoiceStates],
@@ -76,12 +72,12 @@ client.on(Events.InteractionCreate, async (interaction) => {
     if (interaction.replied || interaction.deferred) {
       await interaction.followUp({
         content: "There was an error while executing this command!",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     } else {
       await interaction.reply({
         content: "There was an error while executing this command!",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   }
