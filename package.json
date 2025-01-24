@@ -17,16 +17,16 @@
   },
   "homepage": "https://github.com/actuallyatiger/discord-beat-bot#readme",
   "devDependencies": {
-    "eslint": "^9.18.0"
+    "eslint": "^9.19.0"
   },
   "dependencies": {
     "@discordjs/builders": "^1.8.2",
     "@discordjs/opus": "^0.9.0",
     "@discordjs/rest": "^2.4.2",
     "@discordjs/voice": "^0.18.0",
-    "@distube/ytdl-core": "^4.15.0",
+    "@distube/ytdl-core": "github:ToddyTheNoobDud/ytdl-core-stuff",
     "@googleapis/youtube": "^20.0.0",
-    "discord-api-types": "^0.37.116",
+    "discord-api-types": "^0.37.117",
     "discord.js": "^14.17.3",
     "dotenv": "^16.4.7",
     "libsodium-wrappers": "^0.7.15",
