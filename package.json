@@ -21,10 +21,10 @@
   },
   "dependencies": {
     "@discordjs/builders": "^1.8.2",
-    "@discordjs/opus": "^0.9.0",
+    "@discordjs/opus": "^0.10.0",
     "@discordjs/rest": "^2.4.2",
     "@discordjs/voice": "^0.18.0",
-    "@distube/ytdl-core": "github:ToddyTheNoobDud/ytdl-core-stuff",
+    "@distube/ytdl-core": "^4.15.9",
     "@googleapis/youtube": "^20.0.0",
     "discord-api-types": "^0.37.117",
     "discord.js": "^14.17.3",
