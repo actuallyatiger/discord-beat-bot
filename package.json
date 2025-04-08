@@ -24,7 +24,7 @@
     "@discordjs/opus": "^0.10.0",
     "@discordjs/rest": "^2.4.3",
     "@discordjs/voice": "^0.18.0",
-    "@distube/ytdl-core": "^4.16.6",
+    "@distube/ytdl-core": "^4.16.8",
     "@googleapis/youtube": "^24.0.0",
     "discord-api-types": "^0.37.119",
     "discord.js": "^14.18.0",
