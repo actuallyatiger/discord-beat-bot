@@ -19,6 +19,7 @@ module.exports = class Connection {
   }
 
   play(url) {
+    // TODO: Transition from ytdl-core because it keeps breaking
     const stream = ytdl(url, ytdl_options);
     const resource = createAudioResource(stream, { inputType: StreamType.Arbitrary });
 

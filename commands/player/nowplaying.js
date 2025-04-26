@@ -37,7 +37,6 @@ module.exports = {
       return interaction.editReply({ content: "No song currently playing" });
     }
 
-    // const info = await ytdl.getInfo(player.now_playing);
     const info = await ytapi.getVideoInfo(player.now_playing);
     const embed = new EmbedBuilder()
       .setTitle("Now Playing")

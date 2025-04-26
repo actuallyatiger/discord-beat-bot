@@ -37,13 +37,12 @@ module.exports = {
       return interaction.editReply({ content: "No songs in the queue" });
     }
 
-    // get the songs from the queue, get the titles from ytdl and put them in an embed as a reponse
+    // get the songs from the queue, get the titles from yt api and put them in an embed as a reponse
     const songs = player.queue.get();
     const description = [];
 
     for (let i = 0; i < songs.length; i++) {
       const song = songs[i];
-      // const song_info = await ytdl.getInfo(song);
       const song_info = await ytapi.getVideoInfo(song);
       description.push(`${i + 1}: ${song_info.title}`);
     }

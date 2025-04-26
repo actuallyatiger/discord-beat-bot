@@ -37,5 +37,9 @@ module.exports = {
     player.setRepeatMode(Repeat.ONE);
     player.connection.becomeIdle();
     player.setRepeatMode(repeatMode);
+
+    return interaction.editReply({
+      content: "Restarting the current song.",
+    });
   },
 };

@@ -1,6 +1,5 @@
 const { EmbedBuilder } = require("discord.js");
 const { AudioPlayerStatus, VoiceConnectionStatus, entersState } = require("@discordjs/voice");
-const ytdl = require("@distube/ytdl-core");
 const Queue = require("./Queue");
 const Connection = require("./Connection");
 const { Repeat } = require("./types");
@@ -10,7 +9,6 @@ const link_re = /^(?:https?:\/\/)?(?:(?:www\.|m\.)?youtube\.com\/watch\?v=|youtu
 // note: YT has 66 playlist ID formats so this regex is not exhaustive but I'm not going to list all of them
 const playlist_re =
   /^(?:https?:\/\/)?(?:(?:www\.|m\.)?youtube.com\/playlist\?list=|music.youtube.com\/playlist\?list=)(?<playlist_id>[\w-]+)(?:[\/\?\&\#]?.*)/;
-
 
 module.exports = class Player {
   constructor(channel_id, guild_id, client) {
@@ -195,7 +193,6 @@ module.exports = class Player {
     if (type === "video") {
       this.queue.insert(pos - 1, yt_id);
     } else {
-      // const playlist = await youtubesearchapi.GetPlaylistData(yt_id);
       const playlist = await ytapi.getPlaylistInfo(yt_id);
       const items = playlist.items.map((video) => video.id);
 
@@ -205,7 +202,6 @@ module.exports = class Player {
     const embed = new EmbedBuilder();
 
     if (type === "video") {
-      // const info = await ytdl.getInfo(yt_id);
       const info = await ytapi.getVideoInfo(yt_id);
       embed
         .setTitle(info.title)
